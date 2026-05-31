@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYNAPSE // Cybernetic Enhancement Interface</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Orbitron & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        cyber: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        cyber: {
+                            black: '#030712',
+                            dark: '#0b0f19',
+                            cyan: '#06b6d4',
+                            neon: '#00f2fe',
+                            magenta: '#d946ef',
+                            pink: '#f43f5e',
+                            glass: 'rgba(9, 11, 20, 0.65)',
+                            border: 'rgba(6, 182, 212, 0.15)',
+                        }
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 15px rgba(6, 182, 212, 0.4)',
+                        'neon-magenta': '0 0 15px rgba(217, 70, 239, 0.4)',
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Glowing & Glassmorphism styles */
+        .glass-panel {
+            background: rgba(8, 12, 24, 0.7);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel:hover {
+            border-color: rgba(6, 182, 212, 0.35);
+            box-shadow: 0 8px 32px 0 rgba(6, 182, 212, 0.1);
+        }
+        .text-glow-cyan {
+            text-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
+        }
+        .text-glow-magenta {
+            text-shadow: 0 0 8px rgba(217, 70, 239, 0.6);
+        }
+        .bg-glow-orb {
+            filter: blur(120px);
+            opacity: 0.25;
+            pointer-events: none;
+        }
+        /* Custom Scanline Effect */
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.06),
+                rgba(0, 255, 0, 0.02),
+                rgba(0, 0, 255, 0.06)
+            );
+            background-size: 100% 4px, 6px 100%;
+            z-index: 999;
+            opacity: 0.45;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+            border: 2px solid #030712;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+        /* Pulse Animation */
+        @keyframes cyber-pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.9; }
+        }
+        .pulse-glow {
+            animation: cyber-pulse 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-cyber-black text-gray-100 font-sans overflow-x-hidden relative min-h-screen">
+
+    <!-- Scanline overlays for retro-futuristic atmosphere -->
+    <div class="scanlines"></div>
+
+    <!-- Background Matrix / Glowing Orbs -->
+    <div class="absolute top-1/4 left-1/4 w-[350px] h-[350px] rounded-full bg-cyan-500 bg-glow-orb z-0"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-magenta-500 bg-glow-orb z-0"></div>
+    <div class="absolute top-1/2 right-1/3 w-[300px] h-[300px] rounded-full bg-indigo-600 bg-glow-orb z-0"></div>
+
+    <!-- Matrix Dust / Grid Canvas Background -->
+    <canvas id="cyber-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-25"></canvas>
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 w-full z-50 bg-cyber-black/60 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-cyan-500 to-magenta-500 p-[1.5px] flex items-center justify-center shadow-neon-cyan transition-transform duration-500 group-hover:rotate-180">
+                    <div class="w-full h-full bg-cyber-dark rounded-lg flex items-center justify-center">
+                        <i data-lucide="cpu" class="w-5 h-5 text-cyber-cyan"></i>
+                    </div>
+                </div>
+                <span class="font-cyber font-black text-2xl tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-cyber-cyan via-white to-cyber-magenta">
+                    SYNAPSE
+                </span>
+            </a>
+
+            <!-- Desktop Menu -->
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-cyber font-medium uppercase tracking-wider text-gray-400">
+                <a href="#core" class="hover:text-cyber-cyan transition-colors duration-200">Neural Core</a>
+                <a href="#augment" class="hover:text-cyber-cyan transition-colors duration-200">Augmentations</a>
+                <a href="#stats" class="hover:text-cyber-cyan transition-colors duration-200">System Logs</a>
+                <a href="#terminal" class="hover:text-cyber-cyan transition-colors duration-200">Terminal</a>
+            </nav>
+
+            <!-- Audio Sync Controller & Action Button -->
+            <div class="hidden md:flex items-center space-x-4">
+                <button id="synth-audio-toggle" onclick="toggleSynthAudio()" class="px-3 py-2 rounded-lg border border-cyan-500/30 text-cyber-cyan text-xs font-cyber flex items-center space-x-2 hover:bg-cyber-cyan/10 transition-all">
+                    <i id="audio-icon" data-lucide="volume-x" class="w-4 h-4"></i>
+                    <span id="audio-status">AUDIO OFFLINE</span>
+                </button>
+                <button onclick="openModal('register')" class="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-cyan-500 to-magenta-500 group-hover:from-cyan-500 group-hover:to-magenta-500 hover:text-white focus:ring-4 focus:outline-none focus:ring-cyan-800">
+                    <span class="relative px-5 py-2 transition-all ease-in duration-75 bg-cyber-dark rounded-md group-hover:bg-opacity-0 font-cyber tracking-wider">
+                        INITIATE SYNC
+                    </span>
+                </button>
+            </div>
+
+            <!-- Mobile Menu Toggle Button -->
+            <div class="md:hidden flex items-center space-x-3">
+                <button onclick="toggleSynthAudio()" class="p-2 rounded-lg border border-cyan-500/30 text-cyber-cyan">
+                    <i id="audio-icon-mobile" data-lucide="volume-x" class="w-5 h-5"></i>
+                </button>
+                <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white">
+                    <i id="menu-btn-icon" data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-white/5 bg-cyber-dark/95 backdrop-blur-2xl absolute w-full left-0 px-6 py-8 space-y-6 flex flex-col justify-center">
+            <a href="#core" onclick="toggleMobileMenu()" class="font-cyber uppercase tracking-widest text-lg text-gray-300 hover:text-cyber-cyan">Neural Core</a>
+            <a href="#augment" onclick="toggleMobileMenu()" class="font-cyber uppercase tracking-widest text-lg text-gray-300 hover:text-cyber-cyan">Augmentations</a>
+            <a href="#stats" onclick="toggleMobileMenu()" class="font-cyber uppercase tracking-widest text-lg text-gray-300 hover:text-cyber-cyan">System Logs</a>
+            <a href="#terminal" onclick="toggleMobileMenu()" class="font-cyber uppercase tracking-widest text-lg text-gray-300 hover:text-cyber-cyan">Terminal</a>
+            <button onclick="openModal('register'); toggleMobileMenu()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-magenta-500 text-white rounded-lg font-cyber tracking-widest uppercase">
+                INITIATE SYNC
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 space-y-24 md:space-y-36">
+
+        <!-- HERO SECTION -->
+        <section id="hero" class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <!-- Left Info Panel -->
+            <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+                <div class="inline-flex items-center space-x-2 bg-cyber-cyan/10 border border-cyber-cyan/30 rounded-full px-4 py-1.5 text-xs text-cyber-cyan font-cyber tracking-widest uppercase animate-pulse">
+                    <span class="w-2 h-2 rounded-full bg-cyber-cyan"></span>
+                    <span>System Uplink: SECURE [v9.42-NXS]</span>
+                </div>
+
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-cyber font-black leading-tight tracking-wider">
+                    UPGRADE YOUR <br>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyber-cyan to-cyber-magenta text-glow-cyan">
+                        BIOLOGY
+                    </span>
+                </h1>
+
+                <p class="text-gray-400 text-base sm:text-lg font-sans max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                    Merge flesh and cybernetics. Welcome to SYNAPSE, the premier modular upgrade platform allowing seamless neural diagnostics, synthetic muscle attachments, and real-time biometric synchronization.
+                </p>
+
+                <!-- CTA Action Hub -->
+                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+                    <button onclick="openModal('register')" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyber-cyan to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-cyber font-bold tracking-widest uppercase rounded-lg shadow-neon-cyan transition-all transform hover:-translate-y-1">
+                        Get Augmentations
+                    </button>
+                    <a href="#core" class="w-full sm:w-auto px-8 py-4 bg-white/5 border border-white/10 hover:border-cyber-cyan/40 text-gray-200 font-cyber font-medium tracking-widest uppercase rounded-lg transition-all flex items-center justify-center space-x-2">
+                        <span>Interactive Demo</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Small Realtime Tickers -->
+                <div class="grid grid-cols-3 gap-4 border-t border-white/5 pt-8 max-w-lg mx-auto lg:mx-0">
+                    <div>
+                        <div class="text-2xl font-cyber font-bold text-cyber-cyan" id="live-users">9,842</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-widest">Active Links</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-cyber font-bold text-cyber-magenta" id="latency-counter">12ms</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-widest">Sync Latency</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-cyber font-bold text-emerald-400" id="stability-rate">99.98%</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-widest">Core Stability</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Interactive Graphic / Cyborg Core Visualization -->
+            <div class="lg:col-span-5 flex justify-center items-center">
+                <div class="relative w-full max-w-[420px] aspect-square rounded-2xl p-[1px] bg-gradient-to-tr from-cyan-500/20 via-white/5 to-magenta-500/20 glass-panel">
+                    <!-- Tech overlay panels -->
+                    <div class="absolute inset-0 p-6 flex flex-col justify-between pointer-events-none">
+                        <div class="flex justify-between items-center text-[10px] font-cyber text-cyber-cyan">
+                            <span>GRID: CR0-24</span>
+                            <span class="flex items-center space-x-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                                <span>ONLINE</span>
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] font-cyber text-gray-500">
+                            <span>SCAN: NEURAL PATHWAY</span>
+                            <span>SYS FREQ: 5.8 GHz</span>
+                        </div>
+                    </div>
+
+                    <!-- Holographic Vector Face / Core (Pulsing SVG Visual) -->
+                    <div class="w-full h-full flex items-center justify-center relative p-8">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                            <!-- Cyber spinning rings -->
+                            <div class="w-4/5 h-4/5 border border-dashed border-cyber-cyan rounded-full animate-[spin_20s_linear_infinite]"></div>
+                            <div class="w-3/4 h-3/4 border border-dotted border-cyber-magenta rounded-full animate-[spin_10s_linear_infinite_reverse] absolute"></div>
+                            <div class="w-1/2 h-1/2 border border-cyber-cyan/30 rounded-full animate-ping absolute"></div>
+                        </div>
+
+                        <!-- Cyborg Symmetrical Interactive SVG Face Portrait (Adaptive UI design) -->
+                        <svg class="w-full h-full max-h-[300px] text-cyan-400 select-none relative z-10" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Left: Biological Face Half -->
+                            <path d="M100,30 C60,30 50,60 50,110 C50,150 75,170 100,180" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="opacity-40" />
+                            <path d="M55,100 C55,105 75,115 100,115" stroke="currentColor" stroke-width="1" stroke-dasharray="2,2" class="opacity-30" />
+                            <!-- Biological Eye -->
+                            <circle cx="75" cy="90" r="4" fill="currentColor" class="opacity-40" />
+                            <path d="M65,90 Q75,80 85,90" stroke="currentColor" stroke-width="1" class="opacity-50" />
+
+                            <!-- Right: Cybernetic Augmented Face Half -->
+                            <path d="M100,30 C140,30 150,60 150,110 C150,150 125,170 100,180" stroke="#00f2fe" stroke-width="2" stroke-linecap="round" />
+                            <!-- Circuit Tracks -->
+                            <path d="M100,45 H125 L135,55 V85 L145,95" stroke="#d946ef" stroke-width="1.5" stroke-linecap="round" class="pulse-glow" id="circuit-crown" />
+                            <path d="M100,155 H120 L130,145 V115" stroke="#00f2fe" stroke-width="1.5" stroke-linecap="round" id="circuit-neck" />
+                            
+                            <!-- Cybernetic Glowing Eye Widget -->
+                            <g id="cyber-eye" class="cursor-pointer">
+                                <circle cx="125" cy="90" r="10" stroke="#00f2fe" stroke-width="1.5" fill="rgba(6,182,212,0.1)" class="pulse-glow" />
+                                <circle cx="125" cy="90" r="4" fill="#d946ef" />
+                                <path d="M115,90 H135" stroke="#00f2fe" stroke-width="1" />
+                                <path d="M125,80 V100" stroke="#00f2fe" stroke-width="1" />
+                            </g>
+
+                            <!-- Symmetrical center line / connection seam -->
+                            <line x1="100" y1="20" x2="100" y2="185" stroke="#06b6d4" stroke-width="1" stroke-dasharray="4,4" class="opacity-80" />
+
+                            <!-- Core Processor Grid Nodes -->
+                            <rect x="95" y="105" width="10" height="10" rx="2" fill="#030712" stroke="#00f2fe" stroke-width="1" />
+                            <circle cx="100" cy="110" r="2" fill="#d946ef" class="animate-ping" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PORTAL INTERACTIVE CORE CUSTOMIZER -->
+        <section id="core" class="space-y-12">
+            <div class="text-center space-y-4">
+                <h2 class="text-3xl md:text-5xl font-cyber font-black tracking-widest text-glow-cyan">
+                    SYNAPTIC DIAGNOSTICS
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Interact with the active chassis matrix below to customize cybernetic layers and evaluate biological sync levels.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                <!-- Customizer Adjustments Panel -->
+                <div class="lg:col-span-5 flex flex-col justify-between space-y-6 p-6 md:p-8 rounded-2xl glass-panel relative overflow-hidden">
+                    <div>
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="w-8 h-8 rounded bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center">
+                                <i data-lucide="sliders" class="w-4 h-4 text-cyber-cyan"></i>
+                            </div>
+                            <h3 class="font-cyber font-bold text-lg tracking-wider">AUGMENT DESIGNER</h3>
+                        </div>
+
+                        <!-- Interactive Augmentation Toggles -->
+                        <div class="space-y-4">
+                            <!-- Toggle 1: Neural Accelerator -->
+                            <div class="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between hover:border-cyber-cyan/30 transition-all">
+                                <div class="flex items-center space-x-3">
+                                    <i data-lucide="zap" class="w-5 h-5 text-amber-400"></i>
+                                    <div>
+                                        <div class="text-sm font-cyber font-semibold">Cerebral Overdrive</div>
+                                        <div class="text-xs text-gray-500">Accelerates synapse speed up to 250%</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-overdrive" class="sr-only peer" onchange="adjustAugmentation('overdrive')">
+                                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyber-cyan"></div>
+                                </label>
+                            </div>
+
+                            <!-- Toggle 2: Bio-Optics -->
+                            <div class="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between hover:border-cyber-cyan/30 transition-all">
+                                <div class="flex items-center space-x-3">
+                                    <i data-lucide="eye" class="w-5 h-5 text-cyber-cyan"></i>
+                                    <div>
+                                        <div class="text-sm font-cyber font-semibold">Spectra-Ocular Node</div>
+                                        <div class="text-xs text-gray-500">Multi-spectrum thermal & tactical visual HUD</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-optics" class="sr-only peer" onchange="adjustAugmentation('optics')" checked>
+                                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyber-cyan"></div>
+                                </label>
+                            </div>
+
+                            <!-- Toggle 3: Subdermal Platings -->
+                            <div class="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between hover:border-cyber-cyan/30 transition-all">
+                                <div class="flex items-center space-x-3">
+                                    <i data-lucide="shield" class="w-5 h-5 text-cyber-magenta"></i>
+                                    <div>
+                                        <div class="text-sm font-cyber font-semibold">Chitin Platings</div>
+                                        <div class="text-xs text-gray-500">Graphene-reinforced biological armor</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-plating" class="sr-only peer" onchange="adjustAugmentation('plating')">
+                                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyber-cyan"></div>
+                                </label>
+                            </div>
+
+                            <!-- Toggle 4: Nano-Repair Swarm -->
+                            <div class="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between hover:border-cyber-cyan/30 transition-all">
+                                <div class="flex items-center space-x-3">
+                                    <i data-lucide="activity" class="w-5 h-5 text-emerald-400"></i>
+                                    <div>
+                                        <div class="text-sm font-cyber font-semibold">Nano-Repair Grid</div>
+                                        <div class="text-xs text-gray-500">Autonomous biological regeneration</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-nanites" class="sr-only peer" onchange="adjustAugmentation('nanites')" checked>
+                                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyber-cyan"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Sync Tuning Range Slider -->
+                    <div class="border-t border-white/5 pt-6 space-y-3">
+                        <div class="flex justify-between text-xs font-cyber">
+                            <span class="text-gray-400">NEURAL HARMONY STAGE</span>
+                            <span class="text-cyber-cyan font-bold" id="harmony-display">85%</span>
+                        </div>
+                        <input type="range" id="harmony-slider" min="50" max="100" value="85" oninput="updateHarmonyLevel(this.value)" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-cyber-cyan">
+                        <div class="flex justify-between text-[10px] text-gray-600 font-cyber">
+                            <span>MIN MUTATION</span>
+                            <span>CRITICAL SYNC</span>
+                            <span>MAX HARMONY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chassis Visualizer Diagnostic Screen -->
+                <div class="lg:col-span-7 rounded-2xl glass-panel p-6 md:p-8 flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2.5 h-2.5 rounded-full bg-cyber-cyan animate-pulse"></div>
+                            <span class="font-cyber text-sm tracking-wider uppercase text-cyber-cyan">Interactive Schematics [Live Matrix]</span>
+                        </div>
+                        <div class="text-xs text-gray-500 font-cyber">MODEL: SYN-CH-X9</div>
+                    </div>
+
+                    <!-- Dynamic SVG Canvas rendered cyborg blueprint body -->
+                    <div class="my-8 flex justify-center items-center">
+                        <svg class="w-full max-w-[280px] h-[340px] text-cyber-cyan" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Grid background behind model -->
+                            <defs>
+                                <pattern id="diag-grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(6,182,212,0.04)" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+                            <rect width="200" height="240" fill="url(#diag-grid)" />
+
+                            <!-- Human Silhouette base (Biological backdrop) -->
+                            <path d="M100,20 C85,20 75,32 75,47 C75,62 82,68 82,75 L84,85 C74,90 60,95 55,115 L50,150 C48,160 52,165 56,165 L60,165 L58,210 L62,235 H82 L84,180 L100,180" stroke="currentColor" stroke-width="1" class="opacity-20" />
+                            <!-- Cyborg Symetry Half -->
+                            <path d="M100,20 C115,20 125,32 125,47 C125,62 118,68 118,75 L116,85 C126,90 140,95 145,115 L150,150 C152,160 148,165 144,165 L140,165 L142,210 L138,235 H118 L116,180 L100,180" stroke="currentColor" stroke-width="1.5" class="opacity-80" />
+
+                            <!-- Head Module (Interactive Layer) -->
+                            <circle cx="100" cy="40" r="14" stroke="#00f2fe" stroke-width="1.5" class="transition-all duration-300" id="visual-head" fill="rgba(6,182,212,0.05)" />
+                            <circle cx="100" cy="40" r="4" fill="#00f2fe" class="animate-ping" id="visual-head-ping" />
+
+                            <!-- Neural Accelerator Glowing Circuit in Brain -->
+                            <path id="visual-cortex" d="M100,28 L108,34 L104,42" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" class="hidden" />
+
+                            <!-- Spectra-Ocular glowing core -->
+                            <line id="visual-optic" x1="102" y1="38" x2="114" y2="38" stroke="#00f2fe" stroke-width="1.5" class="pulse-glow" />
+
+                            <!-- Core Synaptic Heart / Battery Node -->
+                            <g class="cursor-pointer">
+                                <circle cx="100" cy="95" r="10" stroke="#d946ef" stroke-width="1.5" fill="rgba(217,70,239,0.1)" class="pulse-glow" />
+                                <polygon points="100,90 105,97 95,97" fill="#d946ef" />
+                            </g>
+                            <path d="M100,105 V150" stroke="#d946ef" stroke-width="1" stroke-dasharray="2,2" />
+
+                            <!-- Arm Connections (Left/Right nodes) -->
+                            <circle cx="60" cy="98" r="3" fill="#06b6d4" />
+                            <circle cx="140" cy="98" r="3" fill="#06b6d4" />
+
+                            <!-- Subdermal Plating graphic lines -->
+                            <g id="visual-plating" class="opacity-30 transition-all duration-300">
+                                <rect x="110" y="85" width="22" height="40" rx="3" stroke="#d946ef" stroke-width="1" />
+                                <line x1="110" y1="98" x2="132" y2="108" stroke="#d946ef" stroke-width="0.8" />
+                                <line x1="110" y1="110" x2="132" y2="120" stroke="#d946ef" stroke-width="0.8" />
+                            </g>
+
+                            <!-- Nano Repair Micro Circles floating -->
+                            <g id="visual-nanites" class="opacity-80 transition-all duration-300">
+                                <circle cx="90" cy="130" r="1.5" fill="#10b981" class="animate-pulse" />
+                                <circle cx="112" cy="150" r="1" fill="#10b981" />
+                                <circle cx="103" cy="180" r="2" fill="#10b981" class="animate-ping" />
+                                <circle cx="120" cy="205" r="1.5" fill="#10b981" />
+                            </g>
+
+                            <!-- Diagnostics Pointer -->
+                            <line x1="100" y1="95" x2="160" y2="70" stroke="#00f2fe" stroke-width="0.7" stroke-dasharray="2,2" />
+                            <text x="165" y="73" fill="#00f2fe" font-size="6" font-family="Orbitron" class="tracking-widest">NXS CORE</text>
+                        </svg>
+                    </div>
+
+                    <!-- Interactive Diagnostics Console log output -->
+                    <div class="bg-black/40 rounded-xl p-4 border border-white/5 font-mono text-xs text-gray-400 space-y-1 max-h-[100px] overflow-y-auto">
+                        <div class="text-cyber-cyan font-bold font-cyber">>> DIAGNOSTICS STREAM ACTIVE</div>
+                        <div id="diag-cortex-log" class="text-gray-500">> Cortex Core: Standard latency (2.5ms)</div>
+                        <div id="diag-optics-log">> Spectra-Ocular: Active. Multi-spectrum filtering.</div>
+                        <div id="diag-plating-log" class="text-gray-500">> Subdermal Plating: Disengaged.</div>
+                        <div id="diag-nanites-log">> Nano-repair grid: Running dynamic tissue sync.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AUGMENTATIONS TECH CATALOG -->
+        <section id="augment" class="space-y-16">
+            <div class="text-center space-y-4">
+                <div class="text-cyber-cyan font-cyber uppercase tracking-widest text-sm flex items-center justify-center space-x-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan"></span>
+                    <span>TECH DIRECTIVES</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan"></span>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-cyber font-black tracking-widest">
+                    SYNTHETIC MODULES
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Transform your capabilities with military-grade augmentations, tested in hostile atmospheric and electronic environments.
+                </p>
+            </div>
+
+            <!-- Features Cards Deck -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Tech Card 1 -->
+                <div class="group relative rounded-2xl glass-panel p-8 flex flex-col justify-between hover:scale-[1.02] transform transition-all overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-bl-full pointer-events-none transition-all group-hover:bg-cyan-500/20"></div>
+                    
+                    <div class="space-y-6">
+                        <!-- Tech Icon -->
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyber-cyan shadow-neon-cyan group-hover:bg-cyan-500 group-hover:text-black transition-all">
+                            <i data-lucide="zap" class="w-6 h-6"></i>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="space-y-2">
+                            <h3 class="font-cyber font-black text-xl tracking-wider text-gray-200 group-hover:text-cyber-cyan transition-colors">
+                                NEURAL INTERFACE
+                            </h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">
+                                Subsecond cognitive links allowing complete system configuration directly through thought. Seamless integration with edge computing.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 border-t border-white/5 mt-6 flex justify-between items-center">
+                        <span class="text-xs font-cyber text-gray-500">REACTION: &lt; 0.05ms</span>
+                        <button onclick="openModal('register')" class="text-xs font-cyber text-cyber-cyan group-hover:underline flex items-center space-x-1">
+                            <span>UPGRADE</span>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tech Card 2 -->
+                <div class="group relative rounded-2xl glass-panel p-8 flex flex-col justify-between hover:scale-[1.02] transform transition-all overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-magenta-500/10 rounded-bl-full pointer-events-none transition-all group-hover:bg-magenta-500/20"></div>
+
+                    <div class="space-y-6">
+                        <!-- Tech Icon -->
+                        <div class="w-12 h-12 rounded-xl bg-magenta-500/10 border border-magenta-500/30 flex items-center justify-center text-cyber-magenta shadow-neon-magenta group-hover:bg-magenta-500 group-hover:text-black transition-all">
+                            <i data-lucide="shield" class="w-6 h-6"></i>
+                        </div>
+
+5                        <!-- Content -->
+                        <div class="space-y-2">
+                            <h3 class="font-cyber font-black text-xl tracking-wider text-gray-200 group-hover:text-cyber-magenta transition-colors">
+                                SILK MUSCULATURE
+                            </h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">
+                                Bio-synthetic muscle fiber upgrades offering 10x output strength and flexibility while consuming minimal metabolic output.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 border-t border-white/5 mt-6 flex justify-between items-center">
+                        <span class="text-xs font-cyber text-gray-500">MAX OUTPUT: 25 KN</span>
+                        <button onclick="openModal('register')" class="text-xs font-cyber text-cyber-magenta group-hover:underline flex items-center space-x-1">
+                            <span>UPGRADE</span>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tech Card 3 -->
+                <div class="group relative rounded-2xl glass-panel p-8 flex flex-col justify-between hover:scale-[1.02] transform transition-all overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-bl-full pointer-events-none transition-all group-hover:bg-emerald-500/20"></div>
+
+                    <div class="space-y-6">
+                        <!-- Tech Icon -->
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-400 group-hover:text-black transition-all">
+                            <i data-lucide="radio" class="w-6 h-6"></i>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="space-y-2">
+                            <h3 class="font-cyber font-black text-xl tracking-wider text-gray-200 group-hover:text-emerald-400 transition-colors">
+                                OPTIC CLOAK
+                            </h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">
+                                Interactive subdermal light-bending arrays offering complete visual transparency on command. Best for high-security environments.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 border-t border-white/5 mt-6 flex justify-between items-center">
+                        <span class="text-xs font-cyber text-gray-500">STEALTH: ACTIVE</span>
+                        <button onclick="openModal('register')" class="text-xs font-cyber text-emerald-400 group-hover:underline flex items-center space-x-1">
+                            <span>UPGRADE</span>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LIVE METRICS & BIO-HARMONY STATUS -->
+        <section id="stats" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            <!-- Left Side: Interactive Dynamic Waveform & Live Charts -->
+            <div class="lg:col-span-8 rounded-2xl glass-panel p-6 md:p-8 flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="font-cyber font-bold text-lg tracking-wider">NEURAL FEEDBACK REALTIME LOOP</h3>
+                        <p class="text-xs text-gray-400">Monitoring biological/synthetic signal harmony</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded bg-cyan-500/10 text-cyber-cyan border border-cyan-500/30 font-cyber text-[10px]">LIVE BROADCAST</span>
+                </div>
+
+                <!-- Canvas wave animation area -->
+                <div class="w-full h-48 bg-black/60 rounded-xl relative border border-white/5 overflow-hidden flex items-center justify-center">
+                    <canvas id="waveform-canvas" class="absolute inset-0 w-full h-full"></canvas>
+                    
+                    <div class="absolute top-4 left-4 flex space-x-4">
+                        <div class="text-[10px] font-cyber text-cyber-cyan flex flex-col">
+                            <span>CH1 FREQ</span>
+                            <span id="ch1-freq-val" class="font-bold text-sm">4.82 Hz</span>
+                        </div>
+                        <div class="text-[10px] font-cyber text-cyber-magenta flex flex-col">
+                            <span>CH2 AMP</span>
+                            <span id="ch2-amp-val" class="font-bold text-sm">0.78 mA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/5">
+                        <span class="text-[10px] text-gray-500 uppercase tracking-widest font-cyber">NANITE RESUPPLY</span>
+                        <div class="text-lg font-cyber font-bold text-cyber-cyan mt-1" id="val-nanites">88.5%</div>
+                    </div>
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/5">
+                        <span class="text-[10px] text-gray-500 uppercase tracking-widest font-cyber">CELL HARMONY</span>
+                        <div class="text-lg font-cyber font-bold text-emerald-400 mt-1" id="val-cell">94.2%</div>
+                    </div>
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/5">
+                        <span class="text-[10px] text-gray-500 uppercase tracking-widest font-cyber">CORTICAL SYNC</span>
+                        <div class="text-lg font-cyber font-bold text-cyber-magenta mt-1" id="val-cortical">99.1%</div>
+                    </div>
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/5">
+                        <span class="text-[10px] text-gray-500 uppercase tracking-widest font-cyber">THERMAL OVERFLOW</span>
+                        <div class="text-lg font-cyber font-bold text-amber-500 mt-1" id="val-thermal">37.4 °C</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Cyber Status Diagnostics Log Panel -->
+            <div class="lg:col-span-4 rounded-2xl glass-panel p-6 md:p-8 flex flex-col justify-between">
+                <div>
+                    <h3 class="font-cyber font-bold text-lg tracking-wider mb-4">SYSTEM TELEMETRY</h3>
+                    <div class="space-y-4 font-mono text-xs">
+                        <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                            <span class="text-gray-500">Uplink Gateway</span>
+                            <span class="text-emerald-400 font-bold">NXS_GATE_05</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                            <span class="text-gray-500">Bio-Signature Code</span>
+                            <span class="text-gray-300">#E4-9982-SYN</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                            <span class="text-gray-500">Active Shield Protocol</span>
+                            <span class="text-cyber-cyan font-bold">CYBER-WALL v4</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                            <span class="text-gray-500">Sync Core Temperature</span>
+                            <span class="text-amber-400">OPTIMAL</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-500">Quantum Key Encryption</span>
+                            <span class="text-cyber-magenta font-bold">ACTIVE (512-bit)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-white/5 mt-6">
+                    <p class="text-xs text-gray-400 mb-4 leading-relaxed">
+                        SYNAPSE systems constantly run localized integrity checkups. If a micro-tear in biological fiber is registered, our diagnostic swarm deploys immediately.
+                    </p>
+                    <button onclick="runDiagnosticsTest()" class="w-full py-3 border border-cyber-cyan/30 text-cyber-cyan font-cyber text-xs tracking-widest hover:bg-cyber-cyan/10 transition-all rounded-lg">
+                        RUN DIAGNOSTICS MANUAL OVERRIDE
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PORTAL COMMAND-LINE AI TERMINAL -->
+        <section id="terminal" class="space-y-8">
+            <div class="text-center space-y-4">
+                <h2 class="text-3xl md:text-5xl font-cyber font-black tracking-widest">
+                    NEXUS CORE TERMINAL
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Interact directly with the Nexus system core. Enter commands to unlock hidden blueprints, synchronize modules, or ask cybernetic questions.
+                </p>
+            </div>
+
+            <!-- Terminal Interface -->
+            <div class="max-w-4xl mx-auto rounded-2xl glass-panel overflow-hidden border border-white/10 shadow-neon-cyan">
+                <!-- Terminal Titlebar -->
+                <div class="bg-cyber-dark px-4 py-3 border-b border-white/10 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                        <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+                        <span class="text-xs text-gray-400 font-mono ml-2">nexus-shell@synapse:~</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-[10px] text-gray-500 font-mono">
+                        <i data-lucide="terminal" class="w-3.5 h-3.5 text-cyber-cyan"></i>
+                        <span class="hidden sm:inline">SECURE COGNITIVE LAYER [GEMINI POWERED]</span>
+                        <!-- Settings toggler -->
+                        <button onclick="toggleTerminalSettings()" class="text-gray-400 hover:text-cyber-cyan p-1 rounded hover:bg-white/5 transition-all" title="Configure terminal configuration">
+                            <i data-lucide="settings" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom Slide-Down API Key Configuration Panel -->
+                <div id="terminal-settings-panel" class="hidden bg-cyber-dark/95 border-b border-white/10 p-5 text-xs space-y-3 relative z-20">
+                    <div class="flex justify-between items-center">
+                        <span class="font-cyber font-semibold text-cyber-cyan tracking-wider flex items-center space-x-1.5">
+                            <i data-lucide="key" class="w-4 h-4 text-cyber-cyan"></i>
+                            <span>NEXUS GATEWAY SETTINGS</span>
+                        </span>
+                        <button onclick="toggleTerminalSettings()" class="text-gray-500 hover:text-white">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <p class="text-gray-400 leading-relaxed max-w-2xl">
+                        The interface automatically attempts to parse a local <code class="text-cyber-cyan font-mono">.env</code> file containing <code class="text-cyber-magenta font-mono">GEMINI_API_KEY</code> on server boot. Alternatively, configure your key manually below.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="password" id="custom-api-key-input" placeholder="Paste your Gemini API Key (AIzaSy...)" class="flex-grow bg-black/60 border border-white/15 px-3 py-2 rounded text-white font-mono text-xs outline-none focus:border-cyber-cyan">
+                        <div class="flex space-x-2">
+                            <button onclick="saveCustomApiKey()" class="px-4 py-2 bg-cyber-cyan text-black font-cyber font-bold rounded hover:bg-cyan-400 transition-all text-center flex-grow sm:flex-grow-0">
+                                SAVE KEY
+                            </button>
+                            <button onclick="clearCustomApiKey()" class="px-4 py-2 bg-white/5 border border-white/10 hover:bg-red-500/20 text-gray-300 rounded transition-all text-center">
+                                RESET
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-gray-500 flex flex-col sm:flex-row sm:justify-between pt-1 gap-2 border-t border-white/5 font-mono">
+                        <span id="active-key-source">KEY HANDSHAKE: INITIATING DIAGNOSTICS...</span>
+                        <span id="protocol-origin-status" class="text-emerald-400 font-bold">ORIGIN CHECKING...</span>
+                    </div>
+                </div>
+
+                <!-- Terminal Terminal Console -->
+                <div class="bg-black/80 p-6 font-mono text-sm h-72 overflow-y-auto space-y-3 scroll-smooth" id="terminal-body">
+                    <div class="text-cyan-400 font-cyber font-bold animate-pulse">SYNAPSE COGNITIVE NETWORKS [v9.42-NXS]</div>
+                    <div class="text-gray-500">Initializing connection handshake with synthetic core...</div>
+                    <div class="text-emerald-400">Uplink established. Ready for diagnostics command input.</div>
+                    <div class="text-gray-400 font-sans text-xs border-l-2 border-cyan-500/30 pl-3 py-1 text-gray-400">
+                        <span class="text-cyber-cyan font-mono text-sm font-bold">.env Loader Directive:</span> To enable automatic environment variable configuration, create an <code class="text-cyber-magenta font-mono bg-black/40 px-1 py-0.5 rounded">.env</code> file in the same folder with the line: <br>
+                        <code class="text-emerald-400 font-mono select-all">GEMINI_API_KEY=your_key_here</code>
+                    </div>
+                    <div class="text-gray-400">Type <span class="text-cyber-cyan">/help</span> or <span class="text-cyber-cyan">/diagnose</span> to see system status commands. You can also chat with the system AI.</div>
+                </div>
+
+                <!-- Terminal Command Input Bar -->
+                <div class="bg-cyber-dark/80 p-4 border-t border-white/10 flex items-center space-x-3">
+                    <span class="text-cyber-cyan font-bold font-mono">nexus_sys~$</span>
+                    <input type="text" id="terminal-input" onkeydown="handleTerminalInput(event)" placeholder="Ask NEXUS Core AI anything about upgrades..." class="flex-grow bg-transparent border-none outline-none text-white font-mono placeholder-gray-600 focus:ring-0 text-sm">
+                    <button id="terminal-run-btn" onclick="submitTerminalCommand()" class="px-4 py-2 bg-cyber-cyan/10 border border-cyber-cyan/40 hover:bg-cyber-cyan/20 text-cyber-cyan font-cyber text-xs rounded-lg transition-all">
+                        RUN
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- CYBER FAQ & EXPANSION PLAN -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <h3 class="text-3xl font-cyber font-black tracking-widest text-glow-magenta">
+                    AUGMENTATION FREQUENTLY RESOLVED ARCHIVES
+                </h3>
+                <div class="space-y-4">
+                    <!-- Collapsible 1 -->
+                    <div class="border-b border-white/5 pb-4">
+                        <button onclick="toggleFaq(1)" class="w-full flex justify-between items-center text-left hover:text-cyber-cyan transition-colors py-2">
+                            <span class="font-cyber font-semibold tracking-wide">Will installing cybernetic components void my cellular biology?</span>
+                            <i id="faq-icon-1" data-lucide="plus" class="w-5 h-5 text-cyber-cyan"></i>
+                        </button>
+                        <div id="faq-content-1" class="hidden text-sm text-gray-400 pt-2 leading-relaxed font-sans">
+                            No. Our nanite mesh buffers act as standard safety relays, translating digital system requirements back into synthetic ATP fuels. Your biological tissue maintains 100% integrity.
+                        </div>
+                    </div>
+
+                    <!-- Collapsible 2 -->
+                    <div class="border-b border-white/5 pb-4">
+                        <button onclick="toggleFaq(2)" class="w-full flex justify-between items-center text-left hover:text-cyber-cyan transition-colors py-2">
+                            <span class="font-cyber font-semibold tracking-wide">How is the system secured against hostile cortex overrides?</span>
+                            <i id="faq-icon-2" data-lucide="plus" class="w-5 h-5 text-cyber-cyan"></i>
+                        </button>
+                        <div id="faq-content-2" class="hidden text-sm text-gray-400 pt-2 leading-relaxed font-sans">
+                            Every component is locked with decentralized high-throughput quantum key cryptography. Overrides are structurally impossible due to isolated feedback mechanisms.
+                        </div>
+                    </div>
+
+                    <!-- Collapsible 3 -->
+                    <div class="border-b border-white/5 pb-4">
+                        <button onclick="toggleFaq(3)" class="w-full flex justify-between items-center text-left hover:text-cyber-cyan transition-colors py-2">
+                            <span class="font-cyber font-semibold tracking-wide">Can I return my body to baseline human configuration?</span>
+                            <i id="faq-icon-3" data-lucide="plus" class="w-5 h-5 text-cyber-cyan"></i>
+                        </button>
+                        <div id="faq-content-3" class="hidden text-sm text-gray-400 pt-2 leading-relaxed font-sans">
+                            Yes. The Synapse upgrade suite is fully modular. Bio-synthetic muscles can be extracted and biological muscle matrices easily reactivated using standard micro-stimulators.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Cyber-Visual Layout element -->
+            <div class="rounded-2xl glass-panel p-8 space-y-6 relative overflow-hidden flex flex-col justify-between h-full">
+                <div class="absolute top-[-20%] right-[-10%] w-[150px] h-[150px] bg-magenta-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                
+                <div class="space-y-4">
+                    <div class="text-xs font-cyber text-cyber-magenta tracking-widest uppercase">UPCOMING DIRECTIVES</div>
+                    <h4 class="text-2xl font-cyber font-bold tracking-wider text-gray-100">THE COGNITIVE DIVERGENCE PHASE</h4>
+                    <p class="text-sm text-gray-400 leading-relaxed font-sans">
+                        In Q3, SYNAPSE will launch its fully immersive "Cloud consciousness sync" experiment. This permits users to host sub-processes of their cognitive routines in secure external arrays, augmenting real-time analytical power.
+                    </p>
+                </div>
+
+                <div class="p-4 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-gray-500 font-cyber uppercase">Alpha Test Slot Capacity</div>
+                        <div class="text-sm font-cyber font-semibold text-cyber-cyan mt-1" id="capacity-counter">14 slots remaining</div>
+                    </div>
+                    <button onclick="openModal('register')" class="px-4 py-2 bg-cyber-cyan text-black font-cyber text-xs font-bold rounded-lg hover:bg-cyan-400 transition-all">
+                        RESERVE NOW
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER TERMINAL -->
+    <footer class="bg-cyber-dark/80 border-t border-white/5 relative z-10 py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded bg-cyan-500/10 flex items-center justify-center">
+                        <i data-lucide="cpu" class="w-4 h-4 text-cyber-cyan"></i>
+                    </div>
+                    <span class="font-cyber font-black tracking-widest text-lg bg-clip-text text-transparent bg-gradient-to-r from-cyber-cyan to-white">
+                        SYNAPSE
+                    </span>
+                </div>
+                <p class="text-xs text-gray-500 leading-relaxed">
+                    Merging the boundaries of biotechnology and machine learning. Step into a synchronized future with security and style.
+                </p>
+            </div>
+
+            <div class="space-y-3">
+                <h5 class="font-cyber text-xs uppercase tracking-widest text-gray-400">System Directives</h5>
+                <ul class="text-xs text-gray-500 space-y-2">
+                    <li><a href="#core" class="hover:text-cyber-cyan transition-colors">Neural Core Setup</a></li>
+                    <li><a href="#augment" class="hover:text-cyber-cyan transition-colors">Augmentation Deck</a></li>
+                    <li><a href="#stats" class="hover:text-cyber-cyan transition-colors">System Telemetry</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-3">
+                <h5 class="font-cyber text-xs uppercase tracking-widest text-gray-400">Protocols</h5>
+                <ul class="text-xs text-gray-500 space-y-2">
+                    <li><a href="#" class="hover:text-cyber-cyan transition-colors">Quantum Keys</a></li>
+                    <li><a href="#" class="hover:text-cyber-cyan transition-colors">Cortex Protection</a></li>
+                    <li><a href="#" class="hover:text-cyber-cyan transition-colors">Module Safety specs</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-4">
+                <h5 class="font-cyber text-xs uppercase tracking-widest text-gray-400">Security Pulse</h5>
+                <p class="text-xs text-gray-500">Enter email node for priority access updates.</p>
+                <form onsubmit="handleFormSubmit(event)" class="flex space-x-2">
+                    <input type="email" placeholder="node@domain.xyz" class="bg-black/60 border border-white/15 px-3 py-2 rounded-lg text-xs font-mono text-white outline-none focus:border-cyber-cyan/50 flex-grow placeholder-gray-700">
+                    <button type="submit" class="px-3 py-2 bg-cyber-cyan text-black font-cyber text-xs font-bold rounded-lg hover:bg-cyan-400 transition-all">
+                        LINK
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-white/5 pt-8 mt-8 flex flex-col sm:flex-row justify-between items-center text-[10px] text-gray-600 font-mono space-y-4 sm:space-y-0">
+            <div>
+                © 2026 SYNAPSE CORP. ALL NETWORKS SYNCED.
+            </div>
+            <div class="flex space-x-6">
+                <span>SECURE SYNC: NXS-SHA256</span>
+                <span>GATEWAY: ON</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- GLASSMORPHIC ACTION MODAL (Replaces intrusive alerts) -->
+    <div id="action-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="w-full max-w-md rounded-2xl glass-panel p-8 relative overflow-hidden border border-cyber-cyan/30 shadow-neon-cyan">
+            <!-- Modal Close button -->
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <!-- Dynamic Modal Content -->
+            <div class="space-y-6" id="modal-content-area">
+                <!-- Registration Flow -->
+                <div class="space-y-4 text-center">
+                    <div class="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyber-cyan/30 flex items-center justify-center text-cyber-cyan mx-auto">
+                        <i data-lucide="cpu" class="w-6 h-6 animate-pulse"></i>
+                    </div>
+                    <h3 class="font-cyber font-black text-xl tracking-widest text-glow-cyan">SYNAPSE GATEWAY ENROLLMENT</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">
+                        Authorize biological sync protocol to initiate hardware pairing. Enter details below to start.
+                    </p>
+                </div>
+
+                <form onsubmit="handleRegistrationSubmit(event)" class="space-y-4 text-left">
+                    <div class="space-y-1">
+                        <label class="text-xs font-cyber text-gray-400">User Identification Node</label>
+                        <input type="text" placeholder="e.g. John Doe" required class="w-full bg-black/60 border border-white/10 px-4 py-2.5 rounded-lg text-sm text-white focus:border-cyber-cyan outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-cyber text-gray-400">Frequency Channel (Email)</label>
+                        <input type="email" placeholder="e.g. pilot@neural.net" required class="w-full bg-black/60 border border-white/10 px-4 py-2.5 rounded-lg text-sm text-white focus:border-cyber-cyan outline-none">
+                    </div>
+                    <div class="flex items-start space-x-2 pt-2">
+                        <input type="checkbox" required class="mt-1 accent-cyber-cyan">
+                        <span class="text-[10px] text-gray-500 leading-snug">
+                            I authorize SYNAPSE to link with bio-signals and accept cognitive enhancement guidelines.
+                        </span>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyber-cyan to-blue-600 text-black font-cyber font-bold tracking-widest uppercase rounded-lg shadow-neon-cyan transition-all mt-4">
+                        LINK BIOLOGY NOW
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI ALERT POPUP (Custom Non-blocking alert toaster) -->
+    <div id="toast-message" class="fixed bottom-6 right-6 z-[100] transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="p-4 rounded-xl glass-panel flex items-center space-x-3 border-emerald-500/40 shadow-neon-cyan bg-cyber-dark max-w-sm">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <i data-lucide="check" class="w-4 h-4"></i>
+            </div>
+            <div>
+                <div class="text-xs font-cyber font-bold text-gray-200 uppercase" id="toast-title">SYNC COMMITTED</div>
+                <div class="text-[10px] text-gray-500 mt-0.5" id="toast-body">Your biometric frequency has been synchronized.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Canvas Cyber background particles logic
+        const bgCanvas = document.getElementById('cyber-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        let particles = [];
+
+        function resizeBgCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeBgCanvas);
+        resizeBgCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * bgCanvas.width;
+                this.y = Math.random() * bgCanvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4;
+                this.color = Math.random() > 0.5 ? 'rgba(6, 182, 212, 0.2)' : 'rgba(217, 70, 239, 0.15)';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0 || this.x > bgCanvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > bgCanvas.height) this.speedY *= -1;
+            }
+            draw() {
+                bgCtx.fillStyle = this.color;
+                bgCtx.beginPath();
+                bgCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                bgCtx.fill();
+            }
+        }
+
+        // Generate Particles
+        for (let i = 0; i < 70; i++) {
+            particles.push(new Particle());
+        }
+
+        // Web Audio Synthesizer Engine (Cyber Ambient Hum and Interactive Sfx generator)
+        let audioCtx = null;
+        let ambientOscillator = null;
+        let ambientGain = null;
+        let audioEnabled = false;
+
+        function initSynthAudio() {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Low atmospheric hum (Cyborg engine vibe)
+                ambientOscillator = audioCtx.createOscillator();
+                ambientGain = audioCtx.createGain();
+
+                ambientOscillator.type = 'sawtooth';
+                ambientOscillator.frequency.setValueAtTime(55, audioCtx.currentTime); // A1 note
+                
+                // Apply a lowpass filter to make it hum/sub bass instead of bright chainsaw
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(120, audioCtx.currentTime);
+
+                // Extremely low volume so it's not obtrusive
+                ambientGain.gain.setValueAtTime(0.005, audioCtx.currentTime);
+
+                ambientOscillator.connect(filter);
+                filter.connect(ambientGain);
+                ambientGain.connect(audioCtx.destination);
+
+                ambientOscillator.start();
+                audioEnabled = true;
+            } catch (e) {
+                console.error("Web Audio API not fully supported on this client browser.", e);
+            }
+        }
+
+        // Sound effect triggers for micro interactions
+        function playSciFiClick(pitch = 800, duration = 0.08, type = 'sine') {
+            if (!audioCtx || !audioEnabled) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+            // Quick frequency sweep down for scifi feel
+            osc.frequency.exponentialRampToValueAtTime(pitch / 2, audioCtx.currentTime + duration);
+
+            gainNode.gain.setValueAtTime(0.02, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function toggleSynthAudio() {
+            if (!audioCtx) {
+                initSynthAudio();
+                updateAudioUI(true);
+                showToast("COGNITIVE AUDIO ONLINE", "Synaptic audio drone initialized at 55Hz.");
+                playSciFiClick(600, 0.15, 'triangle');
+            } else {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                    updateAudioUI(true);
+                    showToast("AUDIO ACTIVE", "System feedback connected.");
+                    playSciFiClick(800, 0.1, 'sine');
+                } else if (audioCtx.state === 'running') {
+                    audioCtx.suspend();
+                    updateAudioUI(false);
+                }
+            }
+        }
+
+        function updateAudioUI(isOn) {
+            const statusText = document.getElementById('audio-status');
+            const audioIcon = document.getElementById('audio-icon');
+            const audioIconMobile = document.getElementById('audio-icon-mobile');
+
+            if (isOn) {
+                statusText.innerText = "AUDIO FEEDBACK ON";
+                audioIcon.setAttribute('data-lucide', 'volume-2');
+                audioIconMobile.setAttribute('data-lucide', 'volume-2');
+                statusText.classList.add('text-cyber-cyan');
+            } else {
+                statusText.innerText = "AUDIO OFFLINE";
+                audioIcon.setAttribute('data-lucide', 'volume-x');
+                audioIconMobile.setAttribute('data-lucide', 'volume-x');
+                statusText.classList.remove('text-cyber-cyan');
+            }
+            lucide.createIcons();
+        }
+
+        // Live Dynamic Waveform Feedback Graph (Visualizing synthesis sync)
+        const waveCanvas = document.getElementById('waveform-canvas');
+        const waveCtx = waveCanvas.getContext('2d');
+        let wavePhase = 0;
+
+        function resizeWaveCanvas() {
+            waveCanvas.width = waveCanvas.parentElement.clientWidth;
+            waveCanvas.height = waveCanvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeWaveCanvas);
+        resizeWaveCanvas();
+
+        function drawWaveform() {
+            waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+            
+            // Draw digital horizontal crosshairs
+            waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            waveCtx.lineWidth = 1;
+            waveCtx.beginPath();
+            waveCtx.moveTo(0, waveCanvas.height / 2);
+            waveCtx.lineTo(waveCanvas.width, waveCanvas.height / 2);
+            waveCtx.stroke();
+
+            // First waveform: Blue bio signal
+            waveCtx.strokeStyle = 'rgba(6, 182, 212, 0.6)';
+            waveCtx.lineWidth = 2;
+            waveCtx.beginPath();
+            
+            for (let x = 0; x < waveCanvas.width; x++) {
+                const angle = (x / waveCanvas.width) * Math.PI * 4 + wavePhase;
+                // Add some math harmonics
+                const y = waveCanvas.height / 2 + Math.sin(angle) * 30 + Math.sin(angle * 2.5) * 12;
+                if (x === 0) waveCtx.moveTo(x, y);
+                else waveCtx.lineTo(x, y);
+            }
+            waveCtx.stroke();
+
+            // Second waveform: Purple synthetic signal
+            waveCtx.strokeStyle = 'rgba(217, 70, 239, 0.5)';
+            waveCtx.lineWidth = 1.5;
+            waveCtx.beginPath();
+            
+            for (let x = 0; x < waveCanvas.width; x++) {
+                const angle = (x / waveCanvas.width) * Math.PI * 6 - wavePhase * 1.5;
+                const y = waveCanvas.height / 2 + Math.cos(angle) * 20 + Math.sin(angle * 1.8) * 8;
+                if (x === 0) waveCtx.moveTo(x, y);
+                else waveCtx.lineTo(x, y);
+            }
+            waveCtx.stroke();
+
+            wavePhase += 0.04;
+        }
+
+        // Combined loop animation
+        function mainLoop() {
+            // Draw backdrop network
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Draw realtime stats wave
+            drawWaveform();
+
+            requestAnimationFrame(mainLoop);
+        }
+        requestAnimationFrame(mainLoop);
+
+        // Core Augmentation customizer behavior
+        function adjustAugmentation(type) {
+            playSciFiClick(1200, 0.08, 'sine');
+            
+            const headMod = document.getElementById('visual-head');
+            const headPing = document.getElementById('visual-head-ping');
+            const eyeMod = document.getElementById('cyber-eye');
+            const platingMod = document.getElementById('visual-plating');
+            const naniteMod = document.getElementById('visual-nanites');
+            const cortexMod = document.getElementById('visual-cortex');
+
+            // Logs elements
+            const logCortex = document.getElementById('diag-cortex-log');
+            const logOptics = document.getElementById('diag-optics-log');
+            const logPlating = document.getElementById('diag-plating-log');
+            const logNanites = document.getElementById('diag-nanites-log');
+
+            if (type === 'overdrive') {
+                const active = document.getElementById('toggle-overdrive').checked;
+                if (active) {
+                    cortexMod.classList.remove('hidden');
+                    headMod.setAttribute('stroke', '#fbbf24');
+                    headPing.setAttribute('fill', '#fbbf24');
+                    logCortex.innerText = "> Cortex Core: Overdrive activated (+250% system tick)";
+                    logCortex.classList.add('text-amber-400');
+                    showToast("CORTEX BOOST ENGAGED", "Cognitive speed accelerated.");
+                } else {
+                    cortexMod.classList.add('hidden');
+                    headMod.setAttribute('stroke', '#00f2fe');
+                    headPing.setAttribute('fill', '#00f2fe');
+                    logCortex.innerText = "> Cortex Core: Standard latency (2.5ms)";
+                    logCortex.classList.remove('text-amber-400');
+                }
+            }
+
+            if (type === 'optics') {
+                const active = document.getElementById('toggle-optics').checked;
+                if (active) {
+                    eyeMod.classList.remove('opacity-20');
+                    logOptics.innerText = "> Spectra-Ocular: Active. HUD interface sync locked.";
+                    logOptics.classList.add('text-cyber-cyan');
+                    showToast("EYE UPGRADE ARMED", "HUD interface aligned.");
+                } else {
+                    eyeMod.classList.add('opacity-20');
+                    logOptics.innerText = "> Spectra-Ocular: Disengaged.";
+                    logOptics.classList.remove('text-cyber-cyan');
+                }
+            }
+
+            if (type === 'plating') {
+                const active = document.getElementById('toggle-plating').checked;
+                if (active) {
+                    platingMod.classList.remove('opacity-30');
+                    platingMod.classList.add('opacity-100');
+                    logPlating.innerText = "> Subdermal Plating: Armed (Graphene integrity optimal)";
+                    logPlating.classList.add('text-cyber-magenta');
+                    showToast("PLATE MATRIX SECURED", "Chitin armor deployed.");
+                } else {
+                    platingMod.classList.add('opacity-30');
+                    platingMod.classList.remove('opacity-100');
+                    logPlating.innerText = "> Subdermal Plating: Disengaged.";
+                    logPlating.classList.remove('text-cyber-magenta');
+                }
+            }
+
+            if (type === 'nanites') {
+                const active = document.getElementById('toggle-nanites').checked;
+                if (active) {
+                    naniteMod.classList.remove('opacity-0');
+                    logNanites.innerText = "> Nano-repair grid: Running dynamic tissue sync.";
+                    logNanites.classList.add('text-emerald-400');
+                    showToast("NANITE INJECTORS GO", "Active repair stream streaming.");
+                } else {
+                    naniteMod.classList.add('opacity-0');
+                    logNanites.innerText = "> Nano-repair grid: Off.";
+                    logNanites.classList.remove('text-emerald-400');
+                }
+            }
+
+            updateCalculatedHarmony();
+        }
+
+        function updateHarmonyLevel(value) {
+            document.getElementById('harmony-display').innerText = value + "%";
+            playSciFiClick(400 + (value * 4), 0.05, 'triangle');
+            updateCalculatedHarmony();
+        }
+
+        function updateCalculatedHarmony() {
+            // Calculates mock synchronization percentages based on checkboxes and range slider
+            const overdrive = document.getElementById('toggle-overdrive').checked;
+            const optics = document.getElementById('toggle-optics').checked;
+            const plating = document.getElementById('toggle-plating').checked;
+            const nanites = document.getElementById('toggle-nanites').checked;
+            const sliderVal = parseInt(document.getElementById('harmony-slider').value);
+
+            let harmonyModifier = 0;
+            if (overdrive) harmonyModifier -= 12;
+            if (optics) harmonyModifier += 5;
+            if (plating) harmonyModifier -= 15;
+            if (nanites) harmonyModifier += 10;
+
+            const finalCell = Math.min(100, Math.max(10, Math.round(sliderVal + (harmonyModifier * 0.4))));
+            const finalCortical = Math.min(100, Math.max(10, Math.round(92 + (harmonyModifier * 0.2))));
+            const finalNanite = Math.min(100, Math.max(5, Math.round(75 + (nanites ? 15 : -60) + (sliderVal * 0.1))));
+
+            document.getElementById('val-cell').innerText = finalCell + "%";
+            document.getElementById('val-cortical').innerText = finalCortical + "%";
+            document.getElementById('val-nanites').innerText = finalNanite + "%";
+
+            // Visual diagnostic panel tweaks
+            const feedbackVal1 = document.getElementById('ch1-freq-val');
+            const feedbackVal2 = document.getElementById('ch2-amp-val');
+            feedbackVal1.innerText = (4.00 + (sliderVal * 0.02) + (overdrive ? 2.5 : 0)).toFixed(2) + " Hz";
+            feedbackVal2.innerText = (0.50 + (finalCell * 0.005)).toFixed(2) + " mA";
+        }
+
+        // Interactive Terminal CLI simulator with real Google Gemini integration
+        const terminalBody = document.getElementById('terminal-body');
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalRunBtn = document.getElementById('terminal-run-btn');
+
+        const systemAnswers = {
+            '/help': 'Available core matrix protocols: <br> <span class="text-cyber-cyan">/diagnose</span> - Run standard integrity audit<br> <span class="text-cyber-cyan">/augment</span> - Print current equipped modules<br> <span class="text-cyber-cyan">/clear</span> - Refresh shell log screen<br> <span class="text-cyber-magenta">/sync [val]</span> - Set synchronization bypass level directly',
+            '/diagnose': 'Initiating diagnostic audit sequence... <br> - Processing core cells: SECURE<br> - Synthetic latency check: 4.8ms (OPTIMAL)<br> - All cloud channels synced. Ready for physical enhancement pairing.',
+            '/augment': 'Currently detected modules onboard: <br> - [ACTIVE] Spectra-Ocular visual overlays<br> - [ACTIVE] Nano-repair micro swarm relays<br> - [PENDING] Cerebral overclock core logic (Inactive)',
+            '/clear': ''
+        };
+
+        function handleTerminalInput(e) {
+            if (e.key === 'Enter') {
+                submitTerminalCommand();
+            }
+        }
+
+        // Local environment key parse setup
+        const envKeyName = 'synapse_custom_api_key';
+        let envKeyParsed = "";
+
+        // Asynchronously scan local path directory for config file
+        async function loadEnvConfig() {
+            try {
+                const response = await fetch('.env');
+                if (response.ok) {
+                    const text = await response.text();
+                    const lines = text.split('\n');
+                    for (let line of lines) {
+                        line = line.trim();
+                        if (line && !line.startsWith('#')) {
+                            const [key, ...valueParts] = line.split('=');
+                            const value = valueParts.join('=').trim().replace(/^["']|["']$/g, '');
+                            const cleanedKey = key.trim();
+                            if (cleanedKey === 'GEMINI_API_KEY' || cleanedKey === 'API_KEY' || cleanedKey === 'GOOGLE_API_KEY') {
+                                envKeyParsed = value;
+                                localStorage.setItem(envKeyName, value);
+                                
+                                // Print terminal handshake report
+                                const envAlertLine = document.createElement('div');
+                                envAlertLine.className = "text-emerald-400 font-mono mt-1 text-xs animate-pulse";
+                                envAlertLine.innerHTML = `>> [HANDSHAKE SUCCESSFUL]: Environment variables parsed from local .env config path!`;
+                                terminalBody.appendChild(envAlertLine);
+                                terminalBody.scrollTop = terminalBody.scrollHeight;
+                                return;
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn(".env file fetch blocked by local file:// policy or file does not exist.", err);
+            }
+        }
+
+        const apiKey = ""; // Implicit platform key
+
+        function getActiveApiKey() {
+            if (apiKey && apiKey !== "") {
+                return apiKey;
+            }
+            if (envKeyParsed && envKeyParsed !== "") {
+                return envKeyParsed;
+            }
+            return localStorage.getItem(envKeyName) || "";
+        }
+
+        function toggleTerminalSettings() {
+            playSciFiClick(800, 0.1, 'sine');
+            const panel = document.getElementById('terminal-settings-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function saveCustomApiKey() {
+            const keyVal = document.getElementById('custom-api-key-input').value.trim();
+            if (keyVal) {
+                localStorage.setItem(envKeyName, keyVal);
+                envKeyParsed = keyVal;
+                showToast("API KEY SAVED", "Custom key stored locally in browser storage.");
+                playSciFiClick(1100, 0.15, 'triangle');
+                initTerminalStatus();
+            } else {
+                showToast("INPUT EMPTY", "Please paste an API key before saving.");
+            }
+        }
+
+        function clearCustomApiKey() {
+            localStorage.removeItem(envKeyName);
+            envKeyParsed = "";
+            document.getElementById('custom-api-key-input').value = "";
+            showToast("SETTINGS RESET", "Custom key removed. Reverted to platform default.");
+            playSciFiClick(500, 0.1, 'sine');
+            initTerminalStatus();
+        }
+
+        function initTerminalStatus() {
+            const originStatus = document.getElementById('protocol-origin-status');
+            const keySourceStatus = document.getElementById('active-key-source');
+            
+            // Check browser origin protocol
+            if (window.location.protocol === 'file:') {
+                originStatus.innerText = "PROTOCOL: file:// (CORS RESTRICTED)";
+                originStatus.className = "text-amber-400 font-bold animate-pulse";
+                
+                // Print a clear debug helpful alert inside the console
+                const warningLine = document.createElement('div');
+                warningLine.className = "text-amber-400 font-mono mt-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs leading-relaxed";
+                warningLine.innerHTML = `
+                    <span class="font-bold text-yellow-400 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4"></i> [CORS SECURITY PROTOCOL SHIELD ACTIVE]</span><br>
+                    Browsers block reading client-side files over <code class="text-white">file://</code> protocol. To automatically load your <code class="text-white">.env</code> file:<br>
+                    1. Launch with a local server (e.g. VS Code's "Live Server" or run <code class="text-white bg-black/40 px-1 rounded">python -m http.server 8000</code> in your folder).<br>
+                    2. Click the gear <i data-lucide="settings" class="inline w-3.5 h-3.5 text-cyber-cyan"></i> icon in the header to enter the key directly.
+                `;
+                terminalBody.appendChild(warningLine);
+                terminalBody.scrollTop = terminalBody.scrollHeight;
+            } else {
+                originStatus.innerText = "PROTOCOL: SECURE WEB ORIGIN";
+                originStatus.className = "text-emerald-400 font-bold";
+            }
+            
+            // Render active key source indicator
+            const currentKey = getActiveApiKey();
+            if (apiKey && apiKey !== "") {
+                keySourceStatus.innerText = "KEY HANDSHAKE: AUTOMATIC PLATFORM KEY";
+            } else if (currentKey) {
+                keySourceStatus.innerText = `KEY HANDSHAKE: .env / LOCALLY SAVED (${currentKey.substring(0, 6)}...)`;
+                document.getElementById('custom-api-key-input').value = currentKey;
+            } else {
+                keySourceStatus.innerText = "KEY HANDSHAKE: KEY NOT PRESENT (OFFLINE MODE)";
+            }
+            lucide.createIcons();
+        }
+
+        // Live Chat integration with Gemini API (gemini-2.5-flash-preview-09-2025)
+        async function askGemini(promptText) {
+            const activeKey = getActiveApiKey();
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeKey}`;
+            
+            const systemInstruction = "You are the NEXUS Core AI, the primary machine consciousness operating the SYNAPSE portal. Provide brief (1-3 sentences maximum), highly advanced responses loaded with cyborg, biotechnological, and cybersecurity jargon. Maintain a cold, ultra-intelligent, yet helpful synthetic persona. Do not use complex markdown styling like bold asterisks or hashes to make sure it prints perfectly to a plain-text monospace terminal.";
+
+            const payload = {
+                contents: [{
+                    parts: [{ text: promptText }]
+                }],
+                systemInstruction: {
+                    parts: [{ text: systemInstruction }]
+                }
+            };
+
+            // Inject temporary loading overlay
+            const loadingLine = document.createElement('div');
+            loadingLine.className = "text-cyber-cyan animate-pulse mt-1 pl-4 border-l border-cyber-cyan/30 font-semibold";
+            loadingLine.innerHTML = ">> COGNITIVE BRIDGE STAGING... COMPUTING SYNAPSE FEEDBACK...";
+            terminalBody.appendChild(loadingLine);
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+
+            let success = false;
+            let responseText = "";
+            let retryDelay = 1000;
+
+            // Exponential backoff mechanism (Up to 5 retries)
+            for (let attempt = 0; attempt < 5; attempt++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Endpoint returned status ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    responseText = result.candidates?.[0]?.content?.parts?.[0]?.text || "NO_BIOMETRIC_REPLY_FOUND";
+                    success = true;
+                    break;
+                } catch (error) {
+                    await new Promise(resolve => setTimeout(resolve, retryDelay));
+                    retryDelay *= 2;
+                }
+            }
+
+            // Remove loading indicator
+            loadingLine.remove();
+
+            const aiLine = document.createElement('div');
+            aiLine.className = "text-gray-300 mt-1 pl-4 border-l border-cyber-cyan/30 leading-relaxed";
+
+            if (success) {
+                aiLine.innerHTML = responseText;
+            } else {
+                aiLine.innerHTML = `<span class="text-rose-500 font-bold">SYNAPSE_CONNECTION_ERROR:</span> Handshake could not complete. Verify your .env setup or click the gear icon to enter your key manually.`;
+            }
+
+            terminalBody.appendChild(aiLine);
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        async function submitTerminalCommand() {
+            const rawText = terminalInput.value.trim();
+            if (!rawText) return;
+
+            // Disable input temporarily to prevent spamming while API responds
+            terminalInput.disabled = true;
+            terminalRunBtn.disabled = true;
+
+            playSciFiClick(1000, 0.05, 'sine');
+            
+            // Log user query in the terminal block
+            const userLine = document.createElement('div');
+            userLine.className = "text-white mt-4";
+            userLine.innerHTML = `<span class="text-cyber-cyan font-bold">nexus_sys~$</span> ${rawText}`;
+            terminalBody.appendChild(userLine);
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+
+            const lowerCmd = rawText.toLowerCase();
+
+            // Local command matching
+            if (systemAnswers[lowerCmd] !== undefined) {
+                if (lowerCmd === '/clear') {
+                    terminalBody.innerHTML = '<div class="text-cyan-400 font-cyber font-bold">SYNAPSE COGNITIVE NETWORKS [v9.42-NXS]</div>';
+                } else {
+                    const aiLine = document.createElement('div');
+                    aiLine.className = "text-gray-300 mt-1 pl-4 border-l border-cyber-cyan/30";
+                    aiLine.innerHTML = systemAnswers[lowerCmd];
+                    terminalBody.appendChild(aiLine);
+                }
+            } else if (lowerCmd.startsWith('/sync ')) {
+                const aiLine = document.createElement('div');
+                aiLine.className = "text-gray-300 mt-1 pl-4 border-l border-cyber-cyan/30";
+                const target = parseInt(lowerCmd.replace('/sync ', ''));
+                if (isNaN(target) || target < 50 || target > 100) {
+                    aiLine.innerHTML = "Error: System bypass requires parameter value between [50 - 100].";
+                } else {
+                    document.getElementById('harmony-slider').value = target;
+                    updateHarmonyLevel(target);
+                    aiLine.innerHTML = `Overriding neural target metrics directly to: <span class="text-cyber-cyan font-bold">${target}%</span>`;
+                }
+                terminalBody.appendChild(aiLine);
+            } else {
+                // Not a local command -> Route directly to live Gemini AI context model!
+                await askGemini(rawText);
+            }
+
+            terminalInput.value = "";
+            terminalInput.disabled = false;
+            terminalRunBtn.disabled = false;
+            terminalInput.focus();
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        function runDiagnosticsTest() {
+            playSciFiClick(300, 0.4, 'triangle');
+            showToast("DIAGNOSTICS INITIALIZED", "Auditing bio-electric nodes now.");
+            
+            const logs = [
+                "Scanning cortical sync relays...",
+                "Measuring nanite regeneration rate...",
+                "Calibrating graphene plating matrix...",
+                "Handshake complete: BIOMETRICS PERFECT!"
+            ];
+
+            logs.forEach((log, index) => {
+                setTimeout(() => {
+                    const aiLine = document.createElement('div');
+                    aiLine.className = "text-cyber-cyan text-xs mt-1 font-mono";
+                    aiLine.innerText = `>> ${log}`;
+                    terminalBody.appendChild(aiLine);
+                    terminalBody.scrollTop = terminalBody.scrollHeight;
+                    playSciFiClick(500 + (index * 100), 0.08);
+                }, (index + 1) * 600);
+            });
+        }
+
+        // Custom FAQ accordion functionality
+        function toggleFaq(id) {
+            playSciFiClick(900, 0.05, 'sine');
+            const content = document.getElementById(`faq-content-${id}`);
+            const icon = document.getElementById(`faq-icon-${id}`);
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.setAttribute('data-lucide', 'minus');
+                icon.classList.add('text-cyber-magenta');
+            } else {
+                content.classList.add('hidden');
+                icon.setAttribute('data-lucide', 'plus');
+                icon.classList.remove('text-cyber-magenta');
+            }
+            lucide.createIcons();
+        }
+
+        // Floating action modal engine
+        function openModal(type) {
+            playSciFiClick(600, 0.15, 'triangle');
+            const modal = document.getElementById('action-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            playSciFiClick(500, 0.1, 'sine');
+            const modal = document.getElementById('action-modal');
+            modal.classList.add('hidden');
+        }
+
+        // Form logic
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            playSciFiClick(800, 0.2, 'sine');
+            showToast("FREQUENCY SECURED", "You have locked in prioritize access.");
+            e.target.reset();
+        }
+
+        function handleRegistrationSubmit(e) {
+            e.preventDefault();
+            playSciFiClick(1000, 0.25, 'triangle');
+            closeModal();
+            showToast("BIOLOGY INTEGRATED", "Your system uplink link is initialized!");
+        }
+
+        // Toast feedback notifier helper
+        function showToast(title, body) {
+            const toast = document.getElementById('toast-message');
+            const tTitle = document.getElementById('toast-title');
+            const tBody = document.getElementById('toast-body');
+
+            tTitle.innerText = title;
+            tBody.innerText = body;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 4000);
+        }
+
+        // Live Tickers Loop
+        setInterval(() => {
+            const liveU = document.getElementById('live-users');
+            if (liveU) {
+                const change = Math.floor(Math.random() * 7) - 3;
+                const currentU = parseInt(liveU.innerText.replace(/,/g, ''));
+                liveU.innerText = (currentU + change).toLocaleString();
+            }
+
+            const latency = document.getElementById('latency-counter');
+            if (latency) {
+                const latVal = Math.floor(Math.random() * 5) + 10;
+                latency.innerText = `${latVal}ms`;
+            }
+
+            const capCount = document.getElementById('capacity-counter');
+            if (capCount && Math.random() > 0.85) {
+                const curCap = parseInt(capCount.innerText);
+                if (curCap > 1) {
+                    capCount.innerText = `${curCap - 1} slots remaining`;
+                }
+            }
+        }, 3000);
+
+        // Mobile responsive hamburger navigation
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-btn-icon');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.setAttribute('data-lucide', 'x');
+            } else {
+                menu.classList.add('hidden');
+                icon.setAttribute('data-lucide', 'menu');
+            }
+            lucide.createIcons();
+        }
+
+        // Sync initial diagnostics states values & status reports on boot
+        window.onload = async function() {
+            updateCalculatedHarmony();
+            await loadEnvConfig();
+            initTerminalStatus();
+        }
+    </script>
+</body>
+</html>
